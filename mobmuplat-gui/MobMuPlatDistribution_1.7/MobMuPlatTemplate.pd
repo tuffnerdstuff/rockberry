@@ -1,0 +1,49 @@
+#N canvas 58 113 1227 612 10;
+#X obj -26 434 send toGUI;
+#X obj -28 40 receive fromGUI;
+#X obj -29 74 route list;
+#X obj 596 46 receive fromNetwork;
+#X obj 596 78 route list;
+#X obj 602 421 send toNetwork;
+#X obj 321 78 route list;
+#X obj 321 46 receive fromSystem;
+#X obj -255 42 adc~;
+#X obj -256 425 dac~;
+#X text -256 231 audio in/out here;
+#X text -28 233 gui elements in/out here;
+#X floatatom -27 368 5 0 0 0 - - -, f 5;
+#X text -29 129 values from changed gui elements come out here;
+#X obj 307 363 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 308 458 send toSystem;
+#X text 332 360 turn iphone camera flash on/off;
+#X text 8 367 move a slider called "tickIndexSlider";
+#X obj -30 102 route /myGrid /myPlayerIndexSlider /myInstrIndexSlider
+;
+#X msg -26 400 list /tickIndexSlider \$1;
+#X msg 308 383 list /flash \$1;
+#X obj 322 102 route /tilts /shake;
+#X obj -220 572 notein;
+#X msg 602 374 list /valueToNetwork 0.5 2 stuff;
+#X obj 597 102 route /valueToNetwork /somethingElse;
+#X text -223 544 oh \, and MIDI goes in and out through normal PureData
+midi objects...;
+#X msg 336 428 list /setPage 2;
+#X text 338 407 scroll interface to third page;
+#X text 585 230 UDP network data in/out here. Do NOT use [netsend]/[netreceive].
+The network address is multicast by default \, and can be set to a
+specific IP address in the app network settings. The port is specified
+by the patch \, but can be overriden in the app network settings.;
+#X text 296 238 device hardware connections in/out here;
+#X connect 1 0 2 0;
+#X connect 2 0 18 0;
+#X connect 3 0 4 0;
+#X connect 4 0 24 0;
+#X connect 6 0 21 0;
+#X connect 7 0 6 0;
+#X connect 12 0 19 0;
+#X connect 14 0 20 0;
+#X connect 19 0 0 0;
+#X connect 20 0 15 0;
+#X connect 23 0 5 0;
+#X connect 26 0 15 0;
