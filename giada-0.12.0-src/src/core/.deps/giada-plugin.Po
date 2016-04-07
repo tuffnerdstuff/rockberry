@@ -1,0 +1,3 @@
+src/core/giada-plugin.o: src/core/plugin.cpp /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

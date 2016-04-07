@@ -1,0 +1,4 @@
+src/gui/dialogs/giada-gd_pluginList.o: src/gui/dialogs/gd_pluginList.cpp \
+ /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

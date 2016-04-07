@@ -1,0 +1,4 @@
+src/gui/elems/giada-ge_pluginBrowser.o: \
+ src/gui/elems/ge_pluginBrowser.cpp /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

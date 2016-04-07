@@ -1,0 +1,34 @@
+<!DOCTYPE patchbay>
+<patchbay version="0.3.12" name="routing">
+ <output-sockets>
+  <socket exclusive="off" client="system" type="jack-audio" name="System IN: Right">
+   <plug>capture_2</plug>
+  </socket>
+  <socket exclusive="off" client="system" type="jack-audio" name="System IN: Left">
+   <plug>capture_1</plug>
+  </socket>
+  <socket exclusive="off" client="sooperlooper" type="jack-audio" name="Sooperlooper OUT: L/R">
+   <plug>common_out_1</plug>
+   <plug>common_out_2</plug>
+  </socket>
+ </output-sockets>
+ <input-sockets>
+  <socket exclusive="off" client="sooperlooper" type="jack-audio" name="Sooperlooper IN: L">
+   <plug>common_in_1</plug>
+  </socket>
+  <socket exclusive="off" client="sooperlooper" type="jack-audio" name="Sooperlooper IN: R">
+   <plug>common_in_2</plug>
+  </socket>
+  <socket exclusive="off" client="system" type="jack-audio" name="System OUT: L/R">
+   <plug>playback_1</plug>
+   <plug>playback_2</plug>
+  </socket>
+ </input-sockets>
+ <slots/>
+ <cables>
+  <cable output="System IN: Right" input="Sooperlooper IN: L" type="jack-audio"/>
+  <cable output="System IN: Right" input="Sooperlooper IN: R" type="jack-audio"/>
+  <cable output="Sooperlooper OUT: L/R" input="System OUT: L/R" type="jack-audio"/>
+ </cables>
+</patchbay>
+

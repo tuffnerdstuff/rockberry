@@ -1,0 +1,6 @@
+src/core/giada-graphics.o: src/core/graphics.cpp \
+ /usr/include/stdc-predef.h src/core/graphics.h
+
+/usr/include/stdc-predef.h:
+
+src/core/graphics.h:

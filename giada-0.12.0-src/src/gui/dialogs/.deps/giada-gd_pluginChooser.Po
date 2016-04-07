@@ -1,0 +1,4 @@
+src/gui/dialogs/giada-gd_pluginChooser.o: \
+ src/gui/dialogs/gd_pluginChooser.cpp /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

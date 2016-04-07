@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# to run this on startup put the path to this script into /home/pi/.config/lxsession/LXDE-pi/autostart
+# syntax: @/home/pi/rockberry/startup
+
+
+ROOT_DIR=$(dirname "$0")
+
+# Kill runnning rockberry processes
+"$ROOT_DIR/shutdown"
+
+# JACK
+"$ROOT_DIR/jack2/build/linux/jackd" -R -P 80 -d alsa -P hw:CODEC -C hw:CODEC -p 256 -n 3 &
+
+# QJackCtl
+qjackctl &
+
+# Sooperlooper
+sooperlooper &
+
+# Set default multicast device to wlan0 
+# (otherwise GUI updates would be sent over eth0)
+sudo route add -net 224.0.0.0 netmask 240.0.0.0 wlan0
+
+# GUI Backend
+pd-extended -nogui -noaudio "$ROOT_DIR/mobmuplat-gui/rockberry-backend.pd" &
+

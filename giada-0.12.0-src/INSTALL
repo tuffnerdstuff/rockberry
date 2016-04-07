@@ -1,0 +1,52 @@
+
+------------------------------------------------------------------------
+  
+  
+  Giada - Your Hardcore Loopmachine.
+  
+  Developed by Monocasual
+  
+  www.monocasual.com/giada
+
+  INSTALLATION GUIDE
+------------------------------------------------------------------------
+
+
+
+Preface
+-------
+Giada depends on FLTK (http://www.fltk.org), RtAudio
+(http://www.music.mcgill.ca/~gary/rtaudio/) and libsndfile
+(http://www.mega-nerd.com/libsndfile/). Please install these libraries
+before compiling from source.
+
+
+
+Building Giada from source
+--------------------------
+The configure script is designed for Unix systems and MinGW (Windows). 
+It will help you to guess correct values for various system-dependent 
+variables used during compilation. You need to pass it the "--target" 
+parameter depending on your operating system:
+
+	./configure --target=[linux | osx | windows]
+
+e.g. if you want to compile for Linux, do:
+
+	./configure --target=linux
+	
+When the script is done without errors, change directory to "src"
+	
+	cd src
+
+then type 
+	
+	make 
+
+to compile everything. If you wish to install Giada become root and 
+type 
+
+	make install 
+	
+to copy the binary file into /usr/local/bin path.
+

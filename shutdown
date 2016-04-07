@@ -1,0 +1,20 @@
+#!/bin/bash
+
+ROOT_DIR=$(dirname "$0")
+
+# JACK
+killall -9 jackd
+
+# QJackCtl
+killall -9 qjackctl
+
+# Sooperlooper
+killall -9 slgui
+killall -9 sooperlooper
+
+# Remove wlan0 as multicast default route
+sudo route del -net 224.0.0.0 netmask 240.0.0.0 wlan0
+
+# GUI Backend
+killall -9 pd-extended
+
