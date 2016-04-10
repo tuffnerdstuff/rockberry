@@ -10,13 +10,14 @@ ROOT_DIR=$(dirname "$0")
 "$ROOT_DIR/shutdown"
 
 # JACK
-"$ROOT_DIR/jack2/build/linux/jackd" -R -P 80 -d alsa -P hw:CODEC -C hw:CODEC -p 256 -n 3 &
+"$ROOT_DIR/jack2/build/linux/jackd" -R -P 80 -d alsa -P hw:CODEC -C hw:CODEC -p 128 -n 3 &
+sleep 5
 
 # QJackCtl
 qjackctl &
 
 # Sooperlooper
-sooperlooper &
+sooperlooper -L "$ROOT_DIR/settings/sooperlooper.slsess" &
 
 # Set default multicast device to wlan0 
 # (otherwise GUI updates would be sent over eth0)

@@ -4,6 +4,10 @@
   <socket exclusive="off" client="system" type="jack-audio" name="System IN: Right">
    <plug>capture_2</plug>
   </socket>
+  <socket exclusive="off" client="alsaplayer-[0-9]+" type="jack-audio" name="Player">
+   <plug>out_1</plug>
+   <plug>out_2</plug>
+  </socket>
   <socket exclusive="off" client="system" type="jack-audio" name="System IN: Left">
    <plug>capture_1</plug>
   </socket>
@@ -29,6 +33,7 @@
   <cable output="System IN: Right" input="Sooperlooper IN: L" type="jack-audio"/>
   <cable output="System IN: Right" input="Sooperlooper IN: R" type="jack-audio"/>
   <cable output="Sooperlooper OUT: L/R" input="System OUT: L/R" type="jack-audio"/>
+  <cable output="Player" input="System OUT: L/R" type="jack-audio"/>
  </cables>
 </patchbay>
 
