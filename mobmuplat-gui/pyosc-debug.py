@@ -11,7 +11,25 @@ TOGUI_ROOT = "/toGUI"
 # SOOPERLOOPER
 client_sl = udp_client.UDPClient("127.0.0.1", 9951)
 LOOPS = 3
-SL_ATTRS = ("loop_len","loop_pos")
+SL_ATTRS = ("loop_len","loop_pos","state")
+SL_STATES = {
+    -1 : "Unknown",
+    0 : "Off",
+    1 : "Wait Start",
+    2 : "Recording",
+    3 : "Wait Stop",
+    4 : "Playing",
+    5 : "Overdubbing",
+    6 : "Multiplying",
+    7 : "Inserting",
+    8 : "Replacing",
+    9 : "Delay",
+    10 : "Muted",
+    11 : "Scratching",
+    12 : "One Shot",
+    13 : "Substitute",
+    14 : "Paused"
+}
 last_val = {}
 
 # GUI
@@ -54,17 +72,43 @@ def fromapp_sl_handler(unused_addr, *args):
     key = "{0}{1}".format(attr,loop)
     last_val[key] = value
     
-    # Propagate value
     sl_msg = "/sl/{0}/{1}"
-    propagate_to_gui("/sl/{0}/{1}".format(loop,attr), value)
     
-    # Propagate Relative Position
-    if attr == "loop_pos" or attr == "loop_len":
+    if attr == "state":
+        # Propagate label state
+        record_state = 0
+        multiply_state = 0
+        overdub_state = 0
+        
+        if value == 2: # Recording
+            record_state = 1
+        elif value == 5: # Overdubbing
+            overdub_state = 1
+        elif value == 6: # Multiplying
+            multiply_state = 1
+            
+        propagate_to_gui(sl_msg.format(loop,"record_label"), "highlight",record_state)
+        propagate_to_gui(sl_msg.format(loop,"multiply_label"), "highlight", multiply_state)
+        propagate_to_gui(sl_msg.format(loop,"overdub_label"), "highlight", overdub_state)
+        
+        # Propagate status --> id to string
+        propagate_to_gui(sl_msg.format(loop,"status_text"), SL_STATES[value])
+    
+    elif attr == "loop_pos":
+        # Propagate Relative Position
         old_pos = get_last_value("loop_pos",loop)
         length = get_last_value("loop_len",loop)
-        if not old_pos is None and not length is None:
-            if old_pos != 0 and length != 0:
-                propagate_to_gui("/sl/{0}/loop_pos_rel".format(loop), old_pos / length)
+        if not old_pos is None:
+            rel_pos = 0
+            if length != 0:
+                rel_pos = old_pos / length
+            propagate_to_gui(sl_msg.format(loop,"loop_pos_rel"), rel_pos)
+    else:
+        # Propagate raw value
+        
+        propagate_to_gui(sl_msg.format(loop,attr), value)
+    
+    
         
     
 def propagate_to_gui(msg, *attrs):
@@ -95,6 +139,11 @@ def register_sl_updates():
                 msg.add_arg("/fromAPP/sl")
                 msg = msg.build()
                 client_sl.send(msg)
+                
+        # Set connection state
+        msg = osc_message_builder.OscMessageBuilder(address = TOGUI_ROOT + "/heartbeat")
+        msg = msg.build()
+        client_gui.send(msg)
         
         time.sleep(0.1)
     
@@ -111,12 +160,16 @@ if __name__ == "__main__":
     ############
     # FROM GUI #
     ############
+    # Dispatcher
     fromgui_dispatcher = dispatcher.Dispatcher()
     fromgui_dispatcher.map(FROMGUI_ROOT+"/sl/*", fromgui_sl_handler)
-    run_as_thread(register_sl_updates)
     fromgui_dispatcher.map("/fromAPP/sl*", fromapp_sl_handler)
     fromgui_dispatcher.map("*", catchall_handler)
-
+    
+    # Update Loop
+    run_as_thread(register_sl_updates)
+    
+    # Start Server
     fromgui_server = osc_server.ThreadingOSCUDPServer(
         ("224.0.0.1", 54321), fromgui_dispatcher)
     print("Serving on {}".format(fromgui_server.server_address))
@@ -126,22 +179,3 @@ if __name__ == "__main__":
     #t.start()
     fromgui_server.serve_forever()
     
-    
-    
-    #### remove this
-    
-    ############
-    # TO GUI   #
-    ############
-    
-    togui_dispatcher = dispatcher.Dispatcher()
-    
-    ## Sooperlooper
-    togui_dispatcher.map(TOGUI_ROOT+"/*", togui_sl_handler)
-    register_sl_updates()
-    
-
-    togui_server = osc_server.ThreadingOSCUDPServer(
-        ("127.0.0.1", 54322), togui_dispatcher)
-    print("Serving on {}".format(togui_server.server_address))
-    togui_server.serve_forever()
