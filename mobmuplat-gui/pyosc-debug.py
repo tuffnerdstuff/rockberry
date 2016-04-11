@@ -11,7 +11,7 @@ TOGUI_ROOT = "/toGUI"
 # SOOPERLOOPER
 client_sl = udp_client.UDPClient("127.0.0.1", 9951)
 LOOPS = 3
-SL_ATTRS = ("loop_len","loop_pos","state")
+SL_ATTRS = ("loop_len","loop_pos","state","mute")
 SL_STATES = {
     -1 : "Unknown",
     0 : "Off",
@@ -24,11 +24,12 @@ SL_STATES = {
     7 : "Inserting",
     8 : "Replacing",
     9 : "Delay",
-    10 : "Muted",
+    10 : "Muted Playing",
     11 : "Scratching",
     12 : "One Shot",
     13 : "Substitute",
-    14 : "Paused"
+    14 : "Paused",
+    20 : "Muted Stop"
 }
 last_val = {}
 
@@ -79,6 +80,7 @@ def fromapp_sl_handler(unused_addr, *args):
         record_state = 0
         multiply_state = 0
         overdub_state = 0
+        mute_state = 0
         
         if value == 2: # Recording
             record_state = 1
@@ -86,10 +88,13 @@ def fromapp_sl_handler(unused_addr, *args):
             overdub_state = 1
         elif value == 6: # Multiplying
             multiply_state = 1
+        elif value == 10 or value == 20: # Mute
+            mute_state = 1
             
         propagate_to_gui(sl_msg.format(loop,"record_label"), "highlight",record_state)
         propagate_to_gui(sl_msg.format(loop,"multiply_label"), "highlight", multiply_state)
         propagate_to_gui(sl_msg.format(loop,"overdub_label"), "highlight", overdub_state)
+        propagate_to_gui(sl_msg.format(loop,"mute_label"), "highlight", mute_state)
         
         # Propagate status --> id to string
         propagate_to_gui(sl_msg.format(loop,"status_text"), SL_STATES[value])
