@@ -98,18 +98,18 @@ def fromapp_sl_handler(unused_addr, *args):
         propagate_to_gui(sl_msg.format(loop,"mute_label"), "highlight", mute_state)
         
         # Propagate status --> id to string
-        propagate_to_gui(sl_msg.format(loop,"status_text"), SL_STATES[value])
+        if value in SL_STATES:
+            propagate_to_gui(sl_msg.format(loop,"status_text"), SL_STATES[value])
     
     elif attr == "loop_pos":
         # Propagate Relative Position
-        old_pos = get_last_value("loop_pos",loop)
+        rel_pos = 0
         length = get_last_value("loop_len",loop)
 
-        if not old_pos is None:
-            rel_pos = 0
-            if length != 0:
-                rel_pos = old_pos / length
-            propagate_to_gui(sl_msg.format(loop,"loop_pos_rel"), rel_pos)
+        if length and length != 0:
+            rel_pos = value / length
+
+        propagate_to_gui(sl_msg.format(loop,"loop_pos_rel"), rel_pos)
     else:
         # Propagate raw value
         
@@ -134,25 +134,31 @@ def get_last_value(attr,loop):
 def catchall_handler(unused_addr, *args):
     print("{0} {1}".format(unused_addr,args))
 
-def register_sl_updates():
+def send_heartbeat():
     while True:
-    
-        for loop in range(3):
-            for attr in SL_ATTRS:
-                # GET
-                msg = osc_message_builder.OscMessageBuilder(address = "/sl/{0}/get".format(loop))
-                msg.add_arg(attr)
-                msg.add_arg("osc.udp://127.0.0.1:9952")
-                msg.add_arg("/fromAPP/sl")
-                msg = msg.build()
-                client_sl.send(msg)
                 
         # Set connection state
         msg = osc_message_builder.OscMessageBuilder(address = TOGUI_ROOT + "/heartbeat")
         msg = msg.build()
         client_gui.send(msg)
         
-        time.sleep(0.1)
+        time.sleep(1)
+
+def register_sl_updates():
+    while True:
+    
+        for loop in range(3):
+            for attr in SL_ATTRS:
+                # GET
+                msg = osc_message_builder.OscMessageBuilder(address = "/sl/{0}/register_auto_update".format(loop))
+                msg.add_arg(attr)
+                msg.add_arg(100)
+                msg.add_arg("osc.udp://127.0.0.1:9952")
+                msg.add_arg("/fromAPP/sl")
+                msg = msg.build()
+                client_sl.send(msg)
+        
+        time.sleep(10)
 
 def run_as_thread(f):
     t = threading.Thread(target=f)
@@ -169,7 +175,8 @@ if __name__ == "__main__":
     fromgui_dispatcher.map(FROMGUI_ROOT+"/sl/*", fromgui_sl_handler)
     #fromgui_dispatcher.map("*", catchall_handler)
     
-    
+    # Heartbeat Loop
+    run_as_thread(send_heartbeat)
     
     # Start Server
     fromgui_server = osc_server.ThreadingOSCUDPServer(
