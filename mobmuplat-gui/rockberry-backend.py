@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import threading, time
+import threading, time, subprocess
 
 from pythonosc import dispatcher
 from pythonosc import osc_server
@@ -34,6 +34,10 @@ SL_STATES = {
 }
 last_val = {}
 
+# jack_capture
+jack_capture_recording = False
+jack_capture_process = None
+
 # GUI
 client_gui = udp_client.UDPClient("224.0.0.1", 54322)
 
@@ -48,7 +52,7 @@ def fromgui_sl_handler(unused_addr, args):
     
     # Check if message is well formatted
     if len(loop_action) != 3:
-        #print("--> DISCARD: invalid message")
+        print("--> DISCARD: invalid message")
         return
     
     # Get variables
@@ -64,6 +68,33 @@ def fromgui_sl_handler(unused_addr, args):
     msg.add_arg(action)
     msg = msg.build()
     client_sl.send(msg)
+
+# IN:  /FROMGUI_ROOT/jc/startstop [1==down|0==up]
+def fromgui_jc_handler(unused_addr, args):
+    rec_action = remove_root(unused_addr).split("/")
+    if len(rec_action) < 1 and args:
+        print("--> DISCARD: invalid message")
+        return
+
+    if args == 1:
+    
+        global jack_capture_recording, jack_capture_process
+        if jack_capture_recording:
+            # jack_capture running --> stop recording
+            if jack_capture_process: jack_capture_process.terminate()
+            jack_capture_process = None
+            jack_capture_pre_process = None
+
+            propagate_to_gui('/jc/startstop_label', 'highlight', 0)
+            jack_capture_recording = False
+        else:
+            # jack_capture not running --> start
+            jc_bin = '/usr/bin/jack_capture'
+            jc_out = '/home/pi/Recording/' + time.strftime('%Y-%m-%d_%H-%M-%S.wav')
+            jack_capture_process = subprocess.Popen([jc_bin,'--daemon','-p', 'system:playback*','-p','system:capture_2',jc_out])
+            propagate_to_gui('/jc/startstop_label', 'highlight', 1)
+            jack_capture_recording = True
+        
 
 def fromapp_sl_handler(unused_addr, *args):
     
@@ -173,6 +204,7 @@ if __name__ == "__main__":
     # Dispatcher
     fromgui_dispatcher = dispatcher.Dispatcher()
     fromgui_dispatcher.map(FROMGUI_ROOT+"/sl/*", fromgui_sl_handler)
+    fromgui_dispatcher.map(FROMGUI_ROOT+"/jc/*", fromgui_jc_handler)
     #fromgui_dispatcher.map("*", catchall_handler)
     
     # Heartbeat Loop
