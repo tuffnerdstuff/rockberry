@@ -23,13 +23,14 @@
 #  
 
 import pygame
-from widget_bar import WidgetBar 
+from widgets.bar import WidgetBar 
+from widgets.knob import WidgetKnob
 
 size = WIDTH, HEIGHT = 720, 576
 BACKGROUND_COLOR = (0,0,0)
 
-BAR_HEIGHT = HEIGHT
 BAR_MARGIN = 5
+BAR_HEIGHT = (HEIGHT-2*BAR_MARGIN) * 0.75
 BAR_COUNT = 4
 
 def main(args):
@@ -38,6 +39,7 @@ def main(args):
     clock = pygame.time.Clock()
     
     bar = WidgetBar()
+    knob = WidgetKnob()
     fill = 0.0
     
     while 1:
@@ -46,18 +48,27 @@ def main(args):
         
         screen.fill(BACKGROUND_COLOR)
         
-        # draw bar
         if fill > 1: fill = 0
         
+        # draw bar
         bar_off_x = BAR_MARGIN
         bar_off_y = BAR_MARGIN
         bar_width = (WIDTH / BAR_COUNT) - BAR_MARGIN * 2
-        bar_height = BAR_HEIGHT - BAR_MARGIN * 2
+        bar_height = BAR_HEIGHT
         for i in range(BAR_COUNT-1):
             bar.draw(fill, WidgetBar.Mode.MUTE, screen.subsurface(bar_off_x,bar_off_y,bar_width,bar_height))
             bar_off_x += bar_width + BAR_MARGIN * 2
             
         bar.draw(fill, WidgetBar.Mode.REC, screen.subsurface(bar_off_x,bar_off_y,bar_width,bar_height))
+        
+        # draw knob
+        knob_off_x = BAR_MARGIN
+        knob_off_y = BAR_MARGIN + bar_height
+        knob_width = bar_width
+        knob_height = (HEIGHT-2*BAR_MARGIN) - bar_height
+        for i in range(BAR_COUNT):
+            knob.draw(fill,screen.subsurface(knob_off_x,knob_off_y,knob_width,knob_height))
+            knob_off_x += knob_width + BAR_MARGIN * 2
             
         fill = fill + 0.01
         
