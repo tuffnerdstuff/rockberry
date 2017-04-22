@@ -22,30 +22,24 @@
 #  
 #  
 
-import pygame, enum
+import pygame
+import widget_bar
 
 size = WIDTH, HEIGHT = 720, 576
 BACKGROUND_COLOR = (0,0,0)
 
-class Mode(enum.Enum):
-    MUTE = 0
-    PLAY = 1
-    WAIT = 2
-    REC = 3
-
 BAR_HEIGHT = HEIGHT
 BAR_MARGIN = 5
 BAR_COUNT = 4
-BAR_BORDER = 4
-BORDER_COLOR_MUTE = (128,128,128)
-CELL_FILL_COLOR = (0,0,255)
-CELL_BACK_COLOR = (0,0,64)
+
+
 
 def main(args):
     pygame.init()
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
     
+    bar = widget_bar.WidgetBar()
     fill = 0.0
     
     while 1:
@@ -62,50 +56,16 @@ def main(args):
         bar_width = (WIDTH / BAR_COUNT) - BAR_MARGIN * 2
         bar_height = BAR_HEIGHT - BAR_MARGIN * 2
         for i in range(BAR_COUNT-1):
-            draw_bar(bar_off_x,bar_off_y,bar_width,bar_height, fill, Mode.MUTE, screen)
+            bar.draw(bar_off_x,bar_off_y,bar_width,bar_height, fill, widget_bar.WidgetBar.Mode.MUTE, screen)
             bar_off_x += bar_width + BAR_MARGIN * 2
             
-        draw_bar(bar_off_x,bar_off_y,bar_width,bar_height, fill, Mode.REC, screen)
+        bar.draw(bar_off_x,bar_off_y,bar_width,bar_height, fill, widget_bar.WidgetBar.Mode.REC, screen)
             
         fill = fill + 0.01
         
         pygame.display.flip()
         
         clock.tick(25)
-        
-def draw_bar(x, y, w, h, fill, mode, screen):
-    
-    border_width = BAR_BORDER
-    
-    if mode is Mode.PLAY:
-        border_color = (0,255,0)
-
-    elif mode is Mode.REC:
-        border_color = (255,0,0)
-
-    else:
-        border_color = BORDER_COLOR_MUTE
-        
-        
-    grid_height = h / 4
-    bar_height_empty = (1.0 - fill) * h
-    bar_height_filled = fill * h
-    
-    # grid fill
-    pygame.draw.rect(screen,CELL_BACK_COLOR,(x,y + (bar_height_empty // grid_height) * grid_height,w,(bar_height_filled // grid_height + 1) * grid_height),0)
-    
-    # continuos fill
-    pygame.draw.rect(screen,CELL_FILL_COLOR,(x,y + bar_height_empty,w,bar_height_filled),0)
-    
-    # grid
-    grid_y = y + grid_height
-    for i in range(3):
-        pygame.draw.line(screen,BORDER_COLOR_MUTE,(x,grid_y),(x+w,grid_y),BAR_BORDER)
-        grid_y += grid_height
-    
-    # frame
-    pygame.draw.rect(screen,border_color,(x,y,w,h),border_width)
-    
     
     
     
