@@ -33,42 +33,34 @@ BAR_MARGIN = 5
 BAR_HEIGHT = (HEIGHT-2*BAR_MARGIN) * 0.75
 BAR_COUNT = 4
 
+fill = 0.0
+
 def main(args):
     pygame.init()
-    screen = pygame.display.set_mode(size)
+    s_screen = pygame.display.set_mode(size)
+    s_content = s_screen.subsurface(BAR_MARGIN,BAR_MARGIN,s_screen.get_width()-2*BAR_MARGIN,s_screen.get_height()-2*BAR_MARGIN)
     clock = pygame.time.Clock()
     
     bar = WidgetBar()
+    s_bar = s_content.subsurface(0,0,s_content.get_width(),s_content.get_height()*0.75)
     knob = WidgetKnob()
-    fill = 0.0
+    s_knob = s_content.subsurface(0,s_bar.get_height()+BAR_MARGIN,s_content.get_width(),s_content.get_height() - (s_bar.get_height()+BAR_MARGIN))
+    
+    global fill
     
     while 1:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
         
-        screen.fill(BACKGROUND_COLOR)
+        s_screen.fill(BACKGROUND_COLOR)
         
         if fill > 1: fill = 0
         
-        # draw bar
-        bar_off_x = BAR_MARGIN
-        bar_off_y = BAR_MARGIN
-        bar_width = (WIDTH / BAR_COUNT) - BAR_MARGIN * 2
-        bar_height = BAR_HEIGHT
-        for i in range(BAR_COUNT-1):
-            bar.draw(fill, WidgetBar.Mode.MUTE, screen.subsurface(bar_off_x,bar_off_y,bar_width,bar_height))
-            bar_off_x += bar_width + BAR_MARGIN * 2
-            
-        bar.draw(fill, WidgetBar.Mode.REC, screen.subsurface(bar_off_x,bar_off_y,bar_width,bar_height))
+        # draw bars
+        draw_bars(False, s_bar, bar)
         
         # draw knob
-        knob_off_x = BAR_MARGIN
-        knob_off_y = BAR_MARGIN + bar_height
-        knob_width = bar_width
-        knob_height = (HEIGHT-2*BAR_MARGIN) - bar_height
-        for i in range(BAR_COUNT):
-            knob.draw(fill,screen.subsurface(knob_off_x,knob_off_y,knob_width,knob_height))
-            knob_off_x += knob_width + BAR_MARGIN * 2
+        draw_knobs(False, s_knob, knob)
             
         fill = fill + 0.01
         
@@ -76,9 +68,32 @@ def main(args):
         
         clock.tick(25)
     
-    
-    
+def draw_bars(dummy, surface, widget):
+    if dummy:
+        surface.fill((255,0,0))
+    else:
+        x = 0
+        y = 0
+        width = (surface.get_width() / BAR_COUNT) - BAR_MARGIN + BAR_MARGIN / BAR_COUNT
+        height = surface.get_height()
+        for i in range(BAR_COUNT-1):
+            widget.draw(fill, WidgetBar.Mode.MUTE, surface.subsurface(x,y,width,height))
+            x += width + BAR_MARGIN
+            
+        widget.draw(fill, WidgetBar.Mode.REC, surface.subsurface(x,y,width,height))
 
+def draw_knobs(dummy, surface, widget):
+    if dummy:
+        surface.fill((0,255,0))
+    else:
+        x = 0
+        y = 0
+        width = (surface.get_width() / BAR_COUNT) - BAR_MARGIN + BAR_MARGIN / BAR_COUNT
+        height = surface.get_height()
+        for i in range(BAR_COUNT):
+            widget.draw(fill, surface.subsurface(x,y,width,height))
+            x += width + BAR_MARGIN
+            
 if __name__ == '__main__':
     import sys
     sys.exit(main(sys.argv))
