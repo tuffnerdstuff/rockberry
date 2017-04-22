@@ -1,7 +1,7 @@
 import enum
 import pygame
 
-BAR_BORDER = 4
+BAR_BORDER = 5
 BORDER_COLOR_MUTE = (128,128,128)
 CELL_FILL_COLOR = (0,0,255)
 CELL_BACK_COLOR = (0,0,64)
@@ -14,8 +14,13 @@ class WidgetBar:
         WAIT = 2
         REC = 3
     
-    def draw(self, x, y, w, h, fill, mode, screen):
-    
+    def draw(self, fill, mode, screen):
+        
+        x = 0
+        y = 0
+        w = screen.get_width()
+        h = screen.get_height()
+        
         border_width = BAR_BORDER
         
         if mode is self.Mode.PLAY:

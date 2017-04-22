@@ -23,7 +23,7 @@
 #  
 
 import pygame
-import widget_bar
+from widget_bar import WidgetBar 
 
 size = WIDTH, HEIGHT = 720, 576
 BACKGROUND_COLOR = (0,0,0)
@@ -32,14 +32,12 @@ BAR_HEIGHT = HEIGHT
 BAR_MARGIN = 5
 BAR_COUNT = 4
 
-
-
 def main(args):
     pygame.init()
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
     
-    bar = widget_bar.WidgetBar()
+    bar = WidgetBar()
     fill = 0.0
     
     while 1:
@@ -56,10 +54,10 @@ def main(args):
         bar_width = (WIDTH / BAR_COUNT) - BAR_MARGIN * 2
         bar_height = BAR_HEIGHT - BAR_MARGIN * 2
         for i in range(BAR_COUNT-1):
-            bar.draw(bar_off_x,bar_off_y,bar_width,bar_height, fill, widget_bar.WidgetBar.Mode.MUTE, screen)
+            bar.draw(fill, WidgetBar.Mode.MUTE, screen.subsurface(bar_off_x,bar_off_y,bar_width,bar_height))
             bar_off_x += bar_width + BAR_MARGIN * 2
             
-        bar.draw(bar_off_x,bar_off_y,bar_width,bar_height, fill, widget_bar.WidgetBar.Mode.REC, screen)
+        bar.draw(fill, WidgetBar.Mode.REC, screen.subsurface(bar_off_x,bar_off_y,bar_width,bar_height))
             
         fill = fill + 0.01
         
