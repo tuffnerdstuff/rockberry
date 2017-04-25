@@ -6,7 +6,7 @@ from pythonosc import osc_message_builder
 from pythonosc import udp_client
 
 IP = "127.0.0.1"
-PING_DELAY = 10
+PING_DELAY = 2
 
 class SLClient:
     
@@ -17,6 +17,7 @@ class SLClient:
         self.osc_server = osc_server.ThreadingOSCUDPServer((IP, self.osc_server_port), self.osc_dispatcher)
         self.osc_server_root = root
         
+        self.last_update_time = 0
         self.sl = None
     
     def start(self):
@@ -58,6 +59,9 @@ class SLClient:
         
     def parse_osc_message(self,unused_addr, *args):
         print("IN:{} {}".format(unused_addr,args))
+        
+        # update time
+        self.last_update_time = self._get_millis() 
         
         fun = unused_addr.split("/")[-1]
         if fun == "global":
@@ -105,13 +109,18 @@ class SLClient:
         
     def ping_sl(self):
         while self.running:
-            # Ping
-            ping_msg = osc_message_builder.OscMessageBuilder(address = "/ping")
-            ping_msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-            ping_msg.add_arg("/{}/global".format(self.osc_server_root))
-            ping_msg = ping_msg.build()
-            self.osc_client.send(ping_msg)
-            time.sleep(PING_DELAY)
+            if self._get_millis() - self.last_update_time > 2*PING_DELAY*1000:
+                print("Ping...")
+                # Ping
+                ping_msg = osc_message_builder.OscMessageBuilder(address = "/ping")
+                ping_msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
+                ping_msg.add_arg("/{}/global".format(self.osc_server_root))
+                ping_msg = ping_msg.build()
+                self.osc_client.send(ping_msg)
+                time.sleep(PING_DELAY)
+            
+    def _get_millis(self):
+        return time.time() * 1000
             
 
 class SooperLooper:
