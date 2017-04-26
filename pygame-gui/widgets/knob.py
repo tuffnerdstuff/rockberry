@@ -2,7 +2,8 @@ import pygame, math
 
 BORDER_COLOR = (128,128,128)
 BORDER_WIDTH = 5
-
+OFFSET = 0.375
+BANDWIDTH = 0.75
 class WidgetKnob:
     def draw(self,value,surface):
         
@@ -11,7 +12,7 @@ class WidgetKnob:
         r = int(min(w, h) / 2)
         x_center = int(w / 2)
         y_center = int(h / 2)
-        rad = value * (2*math.pi)
+        rad = (OFFSET + value * BANDWIDTH) * (2*math.pi)
         x_border = x_center + r * math.cos(rad)
         y_border = y_center + r * math.sin(rad)
         

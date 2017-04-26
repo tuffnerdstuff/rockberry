@@ -124,8 +124,18 @@ class SLClient:
             self.last_update_time = self._get_millis() 
             
         elif fun == "loop":
-            pass
+            loop_nr = int(args[0])
+            ctrl = args[1]
+            value = args[2]
             
+            loop = self.sl.loops[loop_nr]
+            
+            if ctrl == "loop_len":
+                loop.length = float(value)
+            elif ctrl == "loop_pos":
+                loop.pos = float(value)
+            elif ctrl == "rec_thresh":
+                loop.threshold = float(value)
            
             
 
@@ -155,7 +165,7 @@ class SooperLooper:
 
 class Loop:
     
-    ATTRS = ("loop_len","loop_pos","state","cycle_len","free_time","total_time","rate_output","in_peak_meter","out_peak_meter","is_soloed")
+    ATTRS = ("loop_len","loop_pos","state","cycle_len","free_time","total_time","rate_output","in_peak_meter","out_peak_meter","is_soloed","rec_thresh")
     
     class Mode(enum.Enum):
         UNKNOWN = -1
@@ -177,8 +187,16 @@ class Loop:
         MUTED_STOP = 20
     
     def __init__(self):
+        self.length = 0.0
         self.pos = 0.0
+        self.threshold = 0.0
         self.mode = self.Mode.UNKNOWN
+        
+    def get_relative_pos(self):
+        if self.length > 0:
+            return self.pos / self.length
+        else:
+            return 0.0
         
 
 def handle_exit(signal=None,frame=None):

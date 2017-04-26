@@ -22,7 +22,7 @@
 #  
 #  
 
-import pygame
+import pygame, sl_client, threading, signal, sys
 from widgets.bar import WidgetBar 
 from widgets.knob import WidgetKnob
 
@@ -33,9 +33,11 @@ BAR_MARGIN = 5
 BAR_HEIGHT = (HEIGHT-2*BAR_MARGIN) * 0.75
 BAR_COUNT = 4
 
-fill = 0.0
+sl = None
 
-def main(args):
+gui_running = True
+
+def main():
     pygame.init()
     s_screen = pygame.display.set_mode(size)
     s_content = s_screen.subsurface(BAR_MARGIN,BAR_MARGIN,s_screen.get_width()-2*BAR_MARGIN,s_screen.get_height()-2*BAR_MARGIN)
@@ -48,21 +50,23 @@ def main(args):
     
     global fill
     
-    while 1:
+    while gui_running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
         
         s_screen.fill(BACKGROUND_COLOR)
         
-        if fill > 1: fill = 0
+        #if fill > 1: fill = 0
         
-        # draw bars
-        draw_bars(False, s_bar, bar)
+        if sl.sl and sl.sl.loop_count > 0:
         
-        # draw knob
-        draw_knobs(False, s_knob, knob)
+            # draw bars
+            draw_bars(False, s_bar, bar)
             
-        fill = fill + 0.01
+            # draw knob
+            draw_knobs(False, s_knob, knob)
+            
+        #fill = fill + 0.01
         
         pygame.display.flip()
         
@@ -74,13 +78,12 @@ def draw_bars(dummy, surface, widget):
     else:
         x = 0
         y = 0
-        width = (surface.get_width() / BAR_COUNT) - BAR_MARGIN + BAR_MARGIN / BAR_COUNT
+        width = (surface.get_width() / sl.sl.loop_count) - BAR_MARGIN + BAR_MARGIN / sl.sl.loop_count
         height = surface.get_height()
-        for i in range(BAR_COUNT-1):
-            widget.draw(fill, WidgetBar.Mode.MUTE, surface.subsurface(x,y,width,height))
+        for i in range(sl.sl.loop_count):
+            widget.draw(sl.sl.loops[i].get_relative_pos(), WidgetBar.Mode.MUTE, surface.subsurface(x,y,width,height))
             x += width + BAR_MARGIN
             
-        widget.draw(fill, WidgetBar.Mode.REC, surface.subsurface(x,y,width,height))
 
 def draw_knobs(dummy, surface, widget):
     if dummy:
@@ -88,12 +91,29 @@ def draw_knobs(dummy, surface, widget):
     else:
         x = 0
         y = 0
-        width = (surface.get_width() / BAR_COUNT) - BAR_MARGIN + BAR_MARGIN / BAR_COUNT
+        width = (surface.get_width() / sl.sl.loop_count) - BAR_MARGIN + BAR_MARGIN / sl.sl.loop_count
         height = surface.get_height()
-        for i in range(BAR_COUNT):
-            widget.draw(fill, surface.subsurface(x,y,width,height))
+        for i in range(sl.sl.loop_count):
+            widget.draw(sl.sl.loops[i].threshold, surface.subsurface(x,y,width,height))
             x += width + BAR_MARGIN
             
+def handle_exit(signal=None,frame=None):
+    print("Quitting ...")
+    sl.stop()
+    gui_running = False
+    sys.exit(0)
+
 if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
+    try:
+        signal.signal(signal.SIGINT, handle_exit)
+        
+        # Start SL OSC client
+        sl = sl_client.SLClient(9951, 9952, "footgui")
+        t = threading.Thread(target=sl.start)
+        t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
+        t.start()
+        
+        # Start GUI
+        main()
+    except KeyboardInterrupt:
+        handle_exit()
