@@ -47,21 +47,28 @@ class SLClient:
         
         
         # unregister SL loop count update (same info as ping)
-        msg = osc_message_builder.OscMessageBuilder(address = "/unregister")
-        msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-        msg.add_arg("/{}/sl".format(self.osc_server_root))
-        msg = msg.build()
-        self.osc_client.send(msg)
+        self.send_osc_message(
+            "/unregister",
+            "osc.udp://{}:{}".format(IP,self.osc_server_port),
+            "/{}/sl".format(self.osc_server_root)
+        )
+        
         # unregister loop auto updates
         if self.sl:
             for loop in range(self.sl.loop_count):
                     for attr in Loop.ATTRS:
-                        msg = osc_message_builder.OscMessageBuilder(address = "/sl/{}/unregister_auto_update".format(loop))
-                        msg.add_arg(attr)
-                        msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-                        msg.add_arg("/{}/loop".format(self.osc_server_root))
-                        msg = msg.build()
-                        self.osc_client.send(msg)
+                        self.send_osc_message(
+                            "/sl/{}/unregister_auto_update".format(loop),
+                            attr,
+                            "osc.udp://{}:{}".format(IP,self.osc_server_port),
+                            "/{}/loop".format(self.osc_server_root)
+                        )
+                        
+    def send_osc_message(self,address,*args):
+        msg = osc_message_builder.OscMessageBuilder(address)
+        for arg in args:
+            msg.add_arg(arg)
+        self.osc_client.send(msg.build())
             
         
     def parse_osc_message(self,unused_addr, *args):
@@ -93,32 +100,32 @@ class SLClient:
             if fun == "sl" or self._get_millis() - self.last_update_time > 2*PING_DELAY*1000:
                 print("--> Registering for updates")
                 # Request SL loop count update (same info as ping)
-                msg = osc_message_builder.OscMessageBuilder(address = "/register")
-                msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-                msg.add_arg("/{}/sl".format(self.osc_server_root))
-                msg = msg.build()
-                self.osc_client.send(msg)
+                self.send_osc_message(
+                    "/register",
+                    "osc.udp://{}:{}".format(IP,self.osc_server_port),
+                    "/{}/sl".format(self.osc_server_root),
+                )
                 
                 # Request loop updates
                 for loop in range(self.sl.loop_count):
                     for attr in Loop.ATTRS:
                         
                         # Get current loop state
-                        msg = osc_message_builder.OscMessageBuilder(address = "/sl/{}/get".format(loop))
-                        msg.add_arg(attr)
-                        msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-                        msg.add_arg("/{}/loop".format(self.osc_server_root))
-                        msg = msg.build()
-                        self.osc_client.send(msg)
+                        self.send_osc_message(
+                            "/sl/{}/get".format(loop),
+                            attr,
+                            "osc.udp://{}:{}".format(IP,self.osc_server_port),
+                            "/{}/loop".format(self.osc_server_root)
+                        )
                         
                         # Register for loop state auto-updates (only triggered when loop actually changes)
-                        msg = osc_message_builder.OscMessageBuilder(address = "/sl/{}/register_auto_update".format(loop))
-                        msg.add_arg(attr)
-                        msg.add_arg(100)
-                        msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-                        msg.add_arg("/{}/loop".format(self.osc_server_root))
-                        msg = msg.build()
-                        self.osc_client.send(msg)
+                        self.send_osc_message(
+                            "/sl/{}/register_auto_update".format(loop),
+                            attr,
+                            100,
+                            "osc.udp://{}:{}".format(IP,self.osc_server_port),
+                            "/{}/loop".format(self.osc_server_root)
+                        )
             
             # update time
             self.last_update_time = self._get_millis() 
@@ -149,11 +156,11 @@ class SLClient:
         while self.running:
             print("OUT:Ping...")
             # Ping
-            ping_msg = osc_message_builder.OscMessageBuilder(address = "/ping")
-            ping_msg.add_arg("osc.udp://{}:{}".format(IP,self.osc_server_port))
-            ping_msg.add_arg("/{}/ping".format(self.osc_server_root))
-            ping_msg = ping_msg.build()
-            self.osc_client.send(ping_msg)
+            self.send_osc_message(
+                "/ping",
+                "osc.udp://{}:{}".format(IP,self.osc_server_port),
+                "/{}/ping".format(self.osc_server_root)
+            )
             time.sleep(PING_DELAY)
             
     def _get_millis(self):
