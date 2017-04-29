@@ -136,6 +136,11 @@ class SLClient:
                 loop.pos = float(value)
             elif ctrl == "rec_thresh":
                 loop.threshold = float(value)
+            elif ctrl == "rate_input":
+                loop.rate_input = float(value)
+            elif ctrl == "rate_output":
+                loop.rate_output = float(value)
+            
            
             
 
@@ -190,6 +195,8 @@ class Loop:
         self.length = 0.0
         self.pos = 0.0
         self.threshold = 0.0
+        self.rate_input = 0.0
+        self.rate_output = 0.0
         self.mode = self.Mode.UNKNOWN
         
     def get_relative_pos(self):
