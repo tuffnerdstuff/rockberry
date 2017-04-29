@@ -12,11 +12,11 @@ from widgets.bar import WidgetBar
 from widgets.knob import WidgetKnob
 from widgets.meter import WidgetMeter
 
-size = WIDTH, HEIGHT = 720, 576
+#size = WIDTH, HEIGHT = 720, 576
+size = WIDTH, HEIGHT = 1024, 768
 BACKGROUND_COLOR = (0,0,0)
-BAR_MARGIN = 5
-BAR_HEIGHT = (HEIGHT-2*BAR_MARGIN) * 0.75
-BAR_COUNT = 4
+MARGIN = int(WIDTH * 0.008)
+BORDER = int(WIDTH * 0.004)
 
 sl = None
 
@@ -25,27 +25,36 @@ fill = 0.0
 
 def main():
     pygame.init()
-    s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE)
-    s_content = s_screen.subsurface(BAR_MARGIN,BAR_MARGIN,s_screen.get_width()-2*BAR_MARGIN,s_screen.get_height()-2*BAR_MARGIN)
+    s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE|pygame.FULLSCREEN)
+    s_content = s_screen.subsurface(MARGIN,MARGIN,s_screen.get_width()-2*MARGIN,s_screen.get_height()-2*MARGIN)
     clock = pygame.time.Clock()
     
     meter = WidgetMeter()
     s_meter = s_content.subsurface(0,0,s_content.get_width()*0.025,s_content.get_height()*0.75)
     s_meter_out = s_content.subsurface(s_content.get_width()-s_meter.get_width(),0,s_content.get_width()*0.025,s_content.get_height()*0.75)
     
-    s_content_loops = s_content.subsurface(s_meter.get_width()+BAR_MARGIN,0,s_content.get_width()-(s_meter.get_width()+s_meter_out.get_width()+BAR_MARGIN*2),s_content.get_height())
+    s_content_loops = s_content.subsurface(s_meter.get_width()+MARGIN,0,s_content.get_width()-(s_meter.get_width()+s_meter_out.get_width()+MARGIN*2),s_content.get_height())
     
     bar = WidgetBar()
     s_bar = s_content_loops.subsurface(0,0,s_content_loops.get_width(),s_content_loops.get_height()*0.75)
     
     knob = WidgetKnob()
-    s_knob = s_content_loops.subsurface(0,s_bar.get_height()+BAR_MARGIN,s_content_loops.get_width(),s_content_loops.get_height() - (s_bar.get_height()+BAR_MARGIN))
+    s_knob = s_content_loops.subsurface(0,s_bar.get_height()+MARGIN,s_content_loops.get_width(),s_content_loops.get_height() - (s_bar.get_height()+MARGIN))
     
-    global fill
+    global fill, gui_running
     
     while gui_running:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+            # Closing pygame window
+            if event.type == pygame.QUIT:
+                print("EVENT: QUIT") 
+                gui_running = False
+            # Key Press Handling
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    print("KEY: ESCAPE")
+                    gui_running = False
+
         
         s_screen.fill(BACKGROUND_COLOR)
         
@@ -76,11 +85,11 @@ def draw_bars(dummy, surface, widget):
     else:
         x = 0
         y = 0
-        width = (surface.get_width() / sl.sl.loop_count) - BAR_MARGIN + BAR_MARGIN / sl.sl.loop_count
+        width = (surface.get_width() / sl.sl.loop_count) - MARGIN + MARGIN / sl.sl.loop_count
         height = surface.get_height()
         for i in range(sl.sl.loop_count):
-            widget.draw(sl.sl.loops[i].get_relative_pos(), WidgetBar.Mode.MUTE, surface.subsurface(x,y,width,height))
-            x += width + BAR_MARGIN
+            widget.draw(sl.sl.loops[i].get_relative_pos(), WidgetBar.Mode.MUTE, BORDER, surface.subsurface(x,y,width,height))
+            x += width + MARGIN
             
 
 def draw_knobs(dummy, surface, widget):
@@ -89,11 +98,11 @@ def draw_knobs(dummy, surface, widget):
     else:
         x = 0
         y = 0
-        width = (surface.get_width() / sl.sl.loop_count) - BAR_MARGIN + BAR_MARGIN / sl.sl.loop_count
+        width = (surface.get_width() / sl.sl.loop_count) - MARGIN + MARGIN / sl.sl.loop_count
         height = surface.get_height()
         for i in range(sl.sl.loop_count):
-            widget.draw(sl.sl.loops[i].threshold, surface.subsurface(x,y,width,height))
-            x += width + BAR_MARGIN
+            widget.draw(sl.sl.loops[i].threshold, BORDER, surface.subsurface(x,y,width,height))
+            x += width + MARGIN
             
 def draw_meter(dummy, surface, widget, volume, threshold):
     if dummy:
@@ -103,11 +112,12 @@ def draw_meter(dummy, surface, widget, volume, threshold):
         y = 0
         width = surface.get_width()
         height = surface.get_height()
-        widget.draw(volume, threshold, surface.subsurface(x,y,width,height))
+        widget.draw(volume, threshold, BORDER, surface.subsurface(x,y,width,height))
             
 def handle_exit(signal=None,frame=None):
     print("Quitting ...")
     sl.stop()
+    global gui_running
     gui_running = False
     sys.exit(0)
 
@@ -124,4 +134,6 @@ if __name__ == '__main__':
         # Start GUI
         main()
     except KeyboardInterrupt:
-        handle_exit()
+        pass
+    
+    handle_exit()

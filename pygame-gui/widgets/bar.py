@@ -1,7 +1,6 @@
 import enum
 import pygame
 
-BORDER_WIDTH = 3
 BORDER_COLOR_REC = (255,0,0)
 BORDER_COLOR_PLAY = (0,255,0)
 BORDER_COLOR_MUTE = (128,128,128)
@@ -16,7 +15,7 @@ class WidgetBar:
         WAIT = 2
         REC = 3
     
-    def draw(self, fill, mode, screen):
+    def draw(self, fill, mode, border_width, screen):
         
         x = 0
         y = 0
@@ -46,8 +45,8 @@ class WidgetBar:
         # grid
         grid_y = y + grid_height
         for i in range(3):
-            pygame.draw.line(screen,BORDER_COLOR_MUTE,(x,grid_y),(x+w,grid_y),BORDER_WIDTH)
+            pygame.draw.line(screen,BORDER_COLOR_MUTE,(x,grid_y),(x+w,grid_y),border_width)
             grid_y += grid_height
         
         # frame
-        pygame.draw.rect(screen,border_color,(x,y,w,h),BORDER_WIDTH)
+        pygame.draw.rect(screen,border_color,(x,y,w,h),border_width)
