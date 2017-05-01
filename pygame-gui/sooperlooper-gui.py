@@ -181,7 +181,7 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, handle_exit)
         
         # Start SL OSC client
-        sl = sl_client.SLClient(9951, 9952, "footgui")
+        sl = sl_client.SLClient(9951, 9953, "footgui")
         t = threading.Thread(target=sl.start)
         t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
         t.start()
