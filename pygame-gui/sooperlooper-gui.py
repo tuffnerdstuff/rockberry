@@ -12,7 +12,7 @@ from widgets.bar import WidgetBar
 from widgets.knob import WidgetKnob
 from widgets.meter import WidgetMeter
 
-size = WIDTH, HEIGHT = 720, 576
+size = WIDTH, HEIGHT = 1024, 576
 #size = WIDTH, HEIGHT = 300, 200
 BACKGROUND_COLOR = (0,0,0)
 MARGIN = int(WIDTH * 0.008)
@@ -25,9 +25,10 @@ fill = 0.0
 
 def main():
     pygame.init()
-    #s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE|pygame.FULLSCREEN)
-    s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE)
+    s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE|pygame.FULLSCREEN)
+    #s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE)
     s_content = s_screen.subsurface(MARGIN,MARGIN,s_screen.get_width()-2*MARGIN,s_screen.get_height()-2*MARGIN)
+    pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
     
     meter = WidgetMeter()

@@ -26,3 +26,5 @@ sudo route add -net 224.0.0.0 netmask 240.0.0.0 wlan0
 # GUI Backend
 "$ROOT_DIR/mobmuplat-gui/rockberry-backend.py" &
 
+# GUI Footpedal
+"$ROOT_DIR/pygame-gui/sooperlooper-gui.py" &
