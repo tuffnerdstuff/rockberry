@@ -133,23 +133,26 @@ class SLClient:
             
         elif fun == "loop":
             loop_nr = int(args[0])
-            ctrl = args[1]
-            value = args[2]
             
-            loop = self._sl._loops[loop_nr]
+            if loop_nr < self._sl.loop_count:
             
-            if ctrl == "loop_len":
-                loop.length = float(value)
-            elif ctrl == "loop_pos":
-                loop.pos = float(value)
-            elif ctrl == "rec_thresh":
-                loop.threshold = float(value)
-            elif ctrl == "rate_input":
-                loop.rate_input = float(value)
-            elif ctrl == "rate_output":
-                loop.rate_output = float(value)
-            elif ctrl == "state":
-                loop.state = Loop.State(int(value))
+                ctrl = args[1]
+                value = args[2]
+                
+                loop = self._sl._loops[loop_nr]
+                
+                if ctrl == "loop_len":
+                    loop.length = float(value)
+                elif ctrl == "loop_pos":
+                    loop.pos = float(value)
+                elif ctrl == "rec_thresh":
+                    loop.threshold = float(value)
+                elif ctrl == "rate_input":
+                    loop.rate_input = float(value)
+                elif ctrl == "rate_output":
+                    loop.rate_output = float(value)
+                elif ctrl == "state":
+                    loop.state = Loop.State(int(value))
             
            
             
