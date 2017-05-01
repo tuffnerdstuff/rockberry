@@ -25,8 +25,8 @@ fill = 0.0
 
 def main():
     pygame.init()
-    s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE|pygame.FULLSCREEN)
-    #s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE)
+    #s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE|pygame.FULLSCREEN)
+    s_screen = pygame.display.set_mode(size, pygame.SRCALPHA|pygame.HWSURFACE)
     s_content = s_screen.subsurface(MARGIN,MARGIN,s_screen.get_width()-2*MARGIN,s_screen.get_height()-2*MARGIN)
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()

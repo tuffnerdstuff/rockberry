@@ -4,6 +4,7 @@ import pygame
 BORDER_WIDTH_MULT = 4
 BORDER_COLOR_REC = (255,0,0)
 BORDER_COLOR_PLAY = (0,255,0)
+BORDER_COLOR_WAIT = (255,255,0)
 BORDER_COLOR_MUTE = (128,128,128)
 BEATS = 4
 
@@ -27,7 +28,8 @@ class WidgetBar:
 
         elif mode is self.Mode.REC:
             border_color = BORDER_COLOR_REC
-
+        elif mode is self.Mode.WAIT:
+            border_color = BORDER_COLOR_WAIT
         else:
             border_color = BORDER_COLOR_MUTE
             
