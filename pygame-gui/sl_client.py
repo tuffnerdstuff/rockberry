@@ -18,7 +18,7 @@ class SLClient:
         self.osc_server_root = root
         
         self.last_update_time = 0
-        self._sl = None
+        self._sl = SooperLooper()
     
     def start(self):
         
@@ -86,8 +86,6 @@ class SLClient:
             version = args[1]
             loop_count = args[2]
             
-            if not self._sl:
-                self._sl = SooperLooper()
             
             # Lazily adding additional loops if necessary
             if loop_count > self._sl.loop_count:
