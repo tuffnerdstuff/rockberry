@@ -1,11 +1,11 @@
 import enum
 import pygame
 
+BORDER_WIDTH_MULT = 4
 BORDER_COLOR_REC = (255,0,0)
 BORDER_COLOR_PLAY = (0,255,0)
 BORDER_COLOR_MUTE = (128,128,128)
-CELL_FILL_COLOR = (0,0,255)
-CELL_BACK_COLOR = (0,0,64)
+BEATS = 4
 
 class WidgetBar:
     
@@ -31,22 +31,25 @@ class WidgetBar:
         else:
             border_color = BORDER_COLOR_MUTE
             
+        dim_color = list(map(lambda x: x*0.5, border_color))
+        dark_color = list(map(lambda x: x*0.25, border_color))
             
-        grid_height = h / 4
+        grid_height = h / BEATS
         bar_height_empty = (1.0 - fill) * h
         bar_height_filled = fill * h
         
         # grid fill
-        pygame.draw.rect(screen,CELL_BACK_COLOR,(x,y + (bar_height_empty // grid_height) * grid_height,w,(bar_height_filled // grid_height + 1) * grid_height),0)
+        pygame.draw.rect(screen,dim_color,(x,y + (bar_height_empty // grid_height) * grid_height,w,(bar_height_filled // grid_height + 1) * grid_height),0)
         
         # continuos fill
-        pygame.draw.rect(screen,CELL_FILL_COLOR,(x,y + bar_height_empty,w,bar_height_filled),0)
+        pygame.draw.rect(screen,border_color,(x,y + bar_height_empty,w,bar_height_filled),0)
         
         # grid
         grid_y = y + grid_height
-        for i in range(3):
-            pygame.draw.line(screen,BORDER_COLOR_MUTE,(x,grid_y),(x+w,grid_y),border_width)
+        for i in range(BEATS-1):
+            pygame.draw.line(screen,dim_color,(x,grid_y),(x+w,grid_y),border_width)
             grid_y += grid_height
         
         # frame
-        pygame.draw.rect(screen,border_color,(x,y,w,h),border_width)
+        pygame.draw.rect(screen,dim_color,(x,y,w,h),border_width * BORDER_WIDTH_MULT)
+
