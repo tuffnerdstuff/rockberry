@@ -1,4 +1,3 @@
-import key_input
 import enum
 
 class Controller:
@@ -12,10 +11,10 @@ class Controller:
         if self.sl_client and self.sl_client.get_sl().loop_count > 0:
             if command == Command.REC:
                 print("REC loop={}".format(loop))
-                sl_client.get_sl().get_loop(loop).record()
+                self.sl_client.get_sl().get_loop(loop).record()
             elif command == Command.MUTE:
                 print("MUTE loop={}".format(loop))
-                sl_client.get_sl().get_loop(loop).mute()
+                self.sl_client.get_sl().get_loop(loop).mute()
             elif command == Command.REC_MODE:
                 print("REC_MODE")
                 pass
@@ -34,6 +33,7 @@ class Input:
         self.controller = controller
         
 if __name__ == '__main__':
+    import controller.key_input
     c = Controller(None)
     i = key_input.InputKey(c)
     i.start()

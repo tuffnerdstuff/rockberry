@@ -1,5 +1,5 @@
-from main import Input
-from main import Command
+from controller.controller_main import Input
+from controller.controller_main import Command
 from Xlib.display import Display
 from Xlib import X
 
@@ -17,7 +17,17 @@ key_q = 24 # global MUTE ALL
 keys = [key_a,key_y,key_s,key_x,key_d,key_c,key_f,key_v,key_1,key_q]
 
 class InputKey(Input):
+    
+    def stop(self):
+        self.running = False
+    
     def start(self):
+        
+        if self.running:
+            return 
+        
+        self.running = True
+        
         # current display
         disp = Display()
         root = disp.screen().root
@@ -28,7 +38,7 @@ class InputKey(Input):
         for keycode in keys:
             root.grab_key(keycode, X.AnyModifier, 1,X.GrabModeAsync, X.GrabModeAsync)
 
-        while 1:
+        while self.running:
             event = root.display.next_event()
             self.handle_event(event)
         

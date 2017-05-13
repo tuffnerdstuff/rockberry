@@ -10,30 +10,43 @@
 import threading, signal, sys
 from sl_client.sl_client import SLClient
 from gui.gui_main import Gui
+from controller.controller_main import Controller
+from controller.key_input import InputKey
 
 
 sl = None
 gui = None
+cont = None
 
          
 def handle_exit(signal=None,frame=None):
     print("Quitting ...")
-    sl.stop()
     gui.stop()
+    cont.stop()
+    sl.stop()
     print("Exiting ...")
     sys.exit(0)
 
+def run_as_thread(function):
+    t = threading.Thread(target=function)
+    t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
+    t.start()
+
 if __name__ == '__main__':
     try:
+        
         signal.signal(signal.SIGINT, handle_exit)
         
-        # Start SL OSC client
+        # Start SL OSC client (new thread)
         sl = SLClient(9951, 9953, "footgui")
-        t = threading.Thread(target=sl.start)
-        t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
-        t.start()
+        run_as_thread(sl.start)
         
-        # Start GUI
+        # Start Controller (new thread)
+        cont = Controller(sl)
+        inp = InputKey(cont)
+        run_as_thread(inp.start)
+        
+        # Start GUI (same thread = blocking)
         gui = Gui(sl)
         gui.start()
         
