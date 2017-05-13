@@ -31,6 +31,14 @@ class Command(enum.IntEnum):
 class Input:
     def __init__(self,controller):
         self.controller = controller
+        self.setup()
+    
+    def setup(self):
+        pass # override if you need to do setup stuff
+        
+    def send_command(self,command,loop=0):
+        if self.controller:
+            self.controller.input_callback(command,loop)
         
 if __name__ == '__main__':
     import controller.key_input

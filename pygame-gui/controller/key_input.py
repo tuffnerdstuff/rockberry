@@ -77,7 +77,5 @@ class InputKey(Input):
                 print("Q")
                 self.send_command(Command.MUTE_ALL)
                 
-    def send_command(self,command,loop=0):
-        if self.controller:
-            self.controller.input_callback(command,loop)
+    
 
